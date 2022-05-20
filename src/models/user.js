@@ -1,18 +1,21 @@
 import mongoose, { Schema } from "mongoose";
 
 const user = new Schema({
-  firstName: { type: String, trim: true, required: true },
-  lastName: { type: String, trim: true, required: true },
+  companyName: { type: String, trim: true, required: true },
+  Address: { type: String, trim: true, required: true },
+  City: { type: String, trim: true, required: true },
+  ABN: { type: String, trim: true, required: true },
   emailId: { type: String, trim: true, required: true, unique: true },
+  services: [{ type: String, trim: true }],
   phoneNumber: {
     type: String,
     trim: true,
     index: true,
     min: 5,
-    max: 15
+    max: 15,
   },
   password: { type: String },
-  deakinSSO: { type: Boolean, default: false},
+  deakinSSO: { type: Boolean, default: false },
   initialPassword: { type: String },
   firstLogin: { type: Boolean, default: false },
   countryCode: { type: String },
@@ -21,7 +24,7 @@ const user = new Schema({
   emailVerified: { type: Boolean, default: false },
   registrationDate: { type: Date, default: Date.now },
   codeUpdatedAt: { type: Date, default: Date.now, required: true },
-  isBlocked: { type: Boolean, default: false, required: true }
+  isBlocked: { type: Boolean, default: false, required: true },
 });
 
 export default mongoose.model("user", user);

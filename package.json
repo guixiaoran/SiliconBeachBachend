@@ -14,11 +14,13 @@
     "deployment": "node build/entry.js"
   },
   "dependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.17.12",
     "@hapi/boom": "~9.1.2",
     "@hapi/hapi": "~20.1.2",
     "@hapi/inert": "~6.0.3",
     "@hapi/vision": "~6.0.1",
     "async": "~3.2.0",
+    "aws-jwt-verify": "^3.0.0",
     "babel-node": "~0.0.1-security",
     "body-parser": "~1.19.0",
     "cfenv": "~1.2.3",
@@ -41,6 +43,7 @@
     "log4js": "~6.3.0",
     "md5": "~2.3.0",
     "moment": "~2.29.1",
+    "moment-range": "^4.0.2",
     "mongoose": "~5.12.2",
     "path": "~0.12.7",
     "randomstring": "~1.1.5",

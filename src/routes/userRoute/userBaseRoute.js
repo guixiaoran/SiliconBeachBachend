@@ -1,7 +1,7 @@
 import UniversalFunctions from "../../utils/universalFunctions";
 import Joi from "joi";
 import Controller from "../../controllers";
-import Config from '../../config';
+import Config from "../../config";
 
 const userRegister = {
   method: "POST",
@@ -14,45 +14,66 @@ const userRegister = {
       return new Promise((resolve, reject) => {
         if (!UniversalFunctions.verifyEmailFormat(payloadData.emailId))
           reject(
-            UniversalFunctions.sendError(UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR
-              .INVALID_EMAIL_FORMAT)
+            UniversalFunctions.sendError(
+              UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.ERROR
+                .INVALID_EMAIL_FORMAT
+            )
           );
         else {
           Controller.UserBaseController.createUser(payloadData, (err, data) => {
             if (err) reject(UniversalFunctions.sendError(err));
-            else resolve(
-              UniversalFunctions.sendSuccess(
-                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                  .CREATED,
-                data
-              )
-            );
+            else
+              resolve(
+                UniversalFunctions.sendSuccess(
+                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                    .CREATED,
+                  data
+                )
+              );
           });
         }
       });
     },
     validate: {
       payload: Joi.object({
-        firstName: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
-        lastName: Joi.string().regex(/^[a-zA-Z ]+$/).trim().min(2).required(),
+        companyName: Joi.string()
+          .regex(/^[a-zA-Z ]+$/)
+          .trim()
+          .min(2)
+          .required(),
+        Address: Joi.string().trim().min(2).required(),
+        City: Joi.string()
+          .regex(/^[a-zA-Z ]+$/)
+          .trim()
+          .min(2)
+          .required(),
+        ABN: Joi.string().trim().min(2).required(),
+        services: Joi.array().items(Joi.string().allow("")),
         emailId: Joi.string().required(),
-        phoneNumber: Joi.string().regex(/^[0-9]+$/).min(5).required(),
+        phoneNumber: Joi.string()
+          .regex(/^[0-9]+$/)
+          .min(5)
+          .required(),
         countryCode: Joi.string().max(4).required().trim(),
         password: Joi.string().required().min(5),
         deviceData: Joi.object({
-          deviceType: Joi.string().valid(...Object.values(Config.APP_CONSTANTS.DATABASE.DEVICE_TYPES)).required(),
+          deviceType: Joi.string()
+            .valid(...Object.values(Config.APP_CONSTANTS.DATABASE.DEVICE_TYPES))
+            .required(),
           deviceName: Joi.string().required(),
           deviceUUID: Joi.string().guid().required(),
-        }).label('deviceData')
+        }).label("deviceData"),
       }).label("User: Register"),
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        responseMessages: UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const verifyOTP = {
@@ -64,36 +85,44 @@ const verifyOTP = {
     tags: ["api", "user"],
     handler: function (request, h) {
       const payloadData = request.payload;
-      const userData = (request.auth && request.auth.credentials && request.auth.credentials.userData) || null;
+      const userData =
+        (request.auth &&
+          request.auth.credentials &&
+          request.auth.credentials.userData) ||
+        null;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.verifyOTP({ data: payloadData, userData }, (err, data) => {
-          if (err) reject(UniversalFunctions.sendError(err));
-          else {
-            resolve(
-              UniversalFunctions.sendSuccess(
-                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                  .VERIFY_COMPLETE,
-                data
-              )
-            );
+        Controller.UserBaseController.verifyOTP(
+          { data: payloadData, userData },
+          (err, data) => {
+            if (err) reject(UniversalFunctions.sendError(err));
+            else {
+              resolve(
+                UniversalFunctions.sendSuccess(
+                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                    .VERIFY_COMPLETE,
+                  data
+                )
+              );
+            }
           }
-        });
+        );
       });
     },
     validate: {
       payload: Joi.object({
-        OTPCode: Joi.string().length(6).required()
+        OTPCode: Joi.string().length(6).required(),
       }).label("User: Verify OTP Model"),
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        security: [{ 'user': {} }],
+        security: [{ user: {} }],
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const login = {
@@ -125,20 +154,23 @@ const login = {
         emailId: Joi.string().required(),
         password: Joi.string().required().min(5).trim(),
         deviceData: Joi.object({
-          deviceType: Joi.string().valid(...Object.values(Config.APP_CONSTANTS.DATABASE.DEVICE_TYPES)).required(),
+          deviceType: Joi.string()
+            .valid(...Object.values(Config.APP_CONSTANTS.DATABASE.DEVICE_TYPES))
+            .required(),
           deviceName: Joi.string().required(),
           deviceUUID: Joi.string().guid().required(),
-        }).label('deviceData')
+        }).label("deviceData"),
       }).label("User: Login"),
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const resendOTP = {
@@ -171,16 +203,17 @@ const resendOTP = {
       });
     },
     validate: {
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        security: [{ 'user': {} }],
+        security: [{ user: {} }],
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const getOTP = {
@@ -192,37 +225,38 @@ const getOTP = {
     handler: function (request, h) {
       const userData = request.query;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.getOTP(userData, function (
-          error,
-          success
-        ) {
-          if (error) {
-            reject(UniversalFunctions.sendError(error));
-          } else {
-            resolve(
-              UniversalFunctions.sendSuccess(
-                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                  .DEFAULT,
-                success
-              )
-            );
+        Controller.UserBaseController.getOTP(
+          userData,
+          function (error, success) {
+            if (error) {
+              reject(UniversalFunctions.sendError(error));
+            } else {
+              resolve(
+                UniversalFunctions.sendSuccess(
+                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                    .DEFAULT,
+                  success
+                )
+              );
+            }
           }
-        });
+        );
       });
     },
     validate: {
       query: {
-        emailId: Joi.string().required()
+        emailId: Joi.string().required(),
       },
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const accessTokenLogin = {
@@ -240,30 +274,31 @@ const accessTokenLogin = {
         null;
       const data = request.payload;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.accessTokenLogin(userData, function (
-          err,
-          data
-        ) {
-          if (!err) {
-            resolve(UniversalFunctions.sendSuccess(null, data));
-          } else {
-            reject(UniversalFunctions.sendError(err));
+        Controller.UserBaseController.accessTokenLogin(
+          userData,
+          function (err, data) {
+            if (!err) {
+              resolve(UniversalFunctions.sendSuccess(null, data));
+            } else {
+              reject(UniversalFunctions.sendError(err));
+            }
           }
-        });
+        );
       });
     },
     auth: "UserAuth",
     validate: {
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        security: [{ 'user': {} }],
+        security: [{ user: {} }],
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const logoutCustomer = {
@@ -280,34 +315,35 @@ const logoutCustomer = {
           request.auth.credentials.userData) ||
         null;
       return new Promise((resolve, reject) => {
-        Controller.UserBaseController.logoutCustomer(userData, function (
-          err,
-          data
-        ) {
-          if (err) {
-            reject(UniversalFunctions.sendError(err));
-          } else {
-            resolve(
-              UniversalFunctions.sendSuccess(
-                UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                  .LOGOUT
-              )
-            );
+        Controller.UserBaseController.logoutCustomer(
+          userData,
+          function (err, data) {
+            if (err) {
+              reject(UniversalFunctions.sendError(err));
+            } else {
+              resolve(
+                UniversalFunctions.sendSuccess(
+                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                    .LOGOUT
+                )
+              );
+            }
           }
-        });
+        );
       });
     },
     validate: {
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        security: [{ 'user': {} }],
+        security: [{ user: {} }],
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const getProfile = {
@@ -325,22 +361,22 @@ const getProfile = {
         null;
       return new Promise((resolve, reject) => {
         if (userData && userData._id) {
-          Controller.UserBaseController.getProfile(userData, function (
-            error,
-            success
-          ) {
-            if (error) {
-              reject(UniversalFunctions.sendError(error));
-            } else {
-              resolve(
-                UniversalFunctions.sendSuccess(
-                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                    .DEFAULT,
-                  success
-                )
-              );
+          Controller.UserBaseController.getProfile(
+            userData,
+            function (error, success) {
+              if (error) {
+                reject(UniversalFunctions.sendError(error));
+              } else {
+                resolve(
+                  UniversalFunctions.sendSuccess(
+                    UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                      .DEFAULT,
+                    success
+                  )
+                );
+              }
             }
-          });
+          );
         } else {
           reject(
             UniversalFunctions.sendError(
@@ -352,16 +388,17 @@ const getProfile = {
       });
     },
     validate: {
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        security: [{ 'user': {} }],
+        security: [{ user: {} }],
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const changePassword = {
@@ -400,19 +437,28 @@ const changePassword = {
     validate: {
       payload: Joi.object({
         skip: Joi.boolean().required(),
-        oldPassword: Joi.string().when('skip', { is: false, then: Joi.string().required().min(5), otherwise: Joi.string().optional().allow("") }),
-        newPassword: Joi.string().when('skip', { is: false, then: Joi.string().required().min(5), otherwise: Joi.string().optional().allow("") })
+        oldPassword: Joi.string().when("skip", {
+          is: false,
+          then: Joi.string().required().min(5),
+          otherwise: Joi.string().optional().allow(""),
+        }),
+        newPassword: Joi.string().when("skip", {
+          is: false,
+          then: Joi.string().required().min(5),
+          otherwise: Joi.string().optional().allow(""),
+        }),
       }).label("User: Change Password"),
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
-        security: [{ 'user': {} }],
+        security: [{ user: {} }],
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const forgotPassword = {
@@ -453,17 +499,18 @@ const forgotPassword = {
     },
     validate: {
       payload: Joi.object({
-        emailId: Joi.string().required()
+        emailId: Joi.string().required(),
       }).label("User: Forget Password"),
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 const resetPassword = {
@@ -483,43 +530,41 @@ const resetPassword = {
             )
           );
         } else {
-          Controller.UserBaseController.resetPassword(request.payload, function (
-            error,
-            success
-          ) {
-            if (error) {
-              reject(UniversalFunctions.sendError(error));
-            } else {
-              resolve(
-                UniversalFunctions.sendSuccess(
-                  UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
-                    .PASSWORD_RESET,
-                  success
-                )
-              );
+          Controller.UserBaseController.resetPassword(
+            request.payload,
+            function (error, success) {
+              if (error) {
+                reject(UniversalFunctions.sendError(error));
+              } else {
+                resolve(
+                  UniversalFunctions.sendSuccess(
+                    UniversalFunctions.CONFIG.APP_CONSTANTS.STATUS_MSG.SUCCESS
+                      .PASSWORD_RESET,
+                    success
+                  )
+                );
+              }
             }
-          });
+          );
         }
       });
     },
     validate: {
       payload: Joi.object({
-        password: Joi.string()
-          .min(6)
-          .required()
-          .trim(),
+        password: Joi.string().min(6).required().trim(),
         emailId: Joi.string().required(),
-        OTPCode: Joi.string().required()
+        OTPCode: Joi.string().required(),
       }).label("User: Reset Password"),
-      failAction: UniversalFunctions.failActionFunction
+      failAction: UniversalFunctions.failActionFunction,
     },
     plugins: {
       "hapi-swagger": {
         responseMessages:
-          UniversalFunctions.CONFIG.APP_CONSTANTS.swaggerDefaultResponseMessages
-      }
-    }
-  }
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
 };
 
 export default [
@@ -533,5 +578,5 @@ export default [
   getProfile,
   changePassword,
   forgotPassword,
-  resetPassword
+  resetPassword,
 ];
