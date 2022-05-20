@@ -4,7 +4,7 @@ import AdminBaseController from "./adminController/adminBaseController";
 import UploadBaseController from "./uploadController/uploadBaseController";
 import SSOBaseController from "./ssoController/ssoBaseController";
 import ServiceController from "./serviceController/serviceController";
-
+import CommentController from "./commentController/commentController";
 export default {
   DemoBaseController,
   UserBaseController,
@@ -12,4 +12,5 @@ export default {
   UploadBaseController,
   SSOBaseController,
   ServiceController,
+  CommentController,
 };

@@ -14,9 +14,9 @@ const _ = require("underscore");
  * @param {name} payloadData.name string
  * @param {description} payloadData.description string
  * @param {cost} payloadData.cost string
- * @param {serviceId} payloadData.serviceId string
+//  * @param {serviceId} payloadData.serviceId string
  */
-const createService = (userData, payloadData, callback) => {
+const createComment = (userData, payloadData, callback) => {
   let serviceData, serviceId;
   let userFound;
 
@@ -32,15 +32,15 @@ const createService = (userData, payloadData, callback) => {
         cb();
       });
     },
-    createServices: (cb) => {
-      let serviceToSave = {
-        serviceCreator: userFound._id,
-        description: payloadData.description,
-        name: payloadData.name,
-        cost: payloadData.cost,
+    createComment: (cb) => {
+      let dataToSave = {
+        commentCreator: userFound._id,
+        content: payloadData.content,
+        commentDate: payloadData.commentDate,
+        serviceBelong: payloadData.serviceBelong,
       };
-      console.log("------------------", serviceToSave);
-      Service.ServiceService.createRecord(serviceToSave, function (err, data) {
+      console.log("------------------", dataToSave);
+      Service.CommentService.createRecord(dataToSave, function (err, data) {
         if (err) return cb(err);
         if (data?.length === 0) return cb(ERROR.DEFAULT);
         serviceId = data._id;
@@ -75,7 +75,7 @@ const createService = (userData, payloadData, callback) => {
   });
 };
 
-const getService = (userData, callback) => {
+const getComment = (userData, callback) => {
   let cardList = [];
   let userFound;
   async.series(
@@ -104,7 +104,7 @@ const getService = (userData, callback) => {
       function (cb) {
         const criteria = {};
         const projection = {};
-        Service.ServiceService.getRecord(
+        Service.CommentService.getRecord(
           criteria,
           projection,
           {},
@@ -127,7 +127,7 @@ const getService = (userData, callback) => {
   );
 };
 
-const getServiceById = (userData, _id, callback) => {
+const getCommentById = (userData, _id, callback) => {
   let cardList = [];
   let userFound;
   async.series(
@@ -156,7 +156,7 @@ const getServiceById = (userData, _id, callback) => {
       function (cb) {
         const criteria = { _id: _id };
         const projection = {};
-        Service.ServiceService.getRecord(
+        Service.CommentService.getRecord(
           criteria,
           projection,
           {},
@@ -179,7 +179,7 @@ const getServiceById = (userData, _id, callback) => {
   );
 };
 
-const deleteService = (userData, payloadData, callback) => {
+const deleteComment = (userData, payloadData, callback) => {
   let news;
   let userFound;
   async.series(
@@ -201,7 +201,7 @@ const deleteService = (userData, payloadData, callback) => {
         });
       },
       function (cb) {
-        Service.ServiceService.deleteRecord(
+        Service.CommentService.deleteRecord(
           { _id: payloadData._id },
           function (err, data) {
             if (err) cb(err);
@@ -218,8 +218,8 @@ const deleteService = (userData, payloadData, callback) => {
 };
 
 export default {
-  createService: createService,
-  getService: getService,
-  getServiceById: getServiceById,
-  deleteService: deleteService,
+  createComment: createComment,
+  getComment: getComment,
+  getCommentById: getCommentById,
+  deleteComment: deleteComment,
 };

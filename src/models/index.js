@@ -4,6 +4,7 @@
 import User from "./user";
 import Service from "./service";
 import Admin from "./admin";
+import Comment from "./comment";
 import Token from "./token";
 import SSO from "./sso";
 
@@ -16,4 +17,5 @@ export default {
   Admin,
   Token,
   SSO,
+  Comment,
 };
