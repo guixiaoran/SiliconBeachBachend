@@ -96,6 +96,53 @@ const getService = {
   },
 };
 
+const getServiceByUserId = {
+  method: "GET",
+  path: "/api/service/getServiceByUserId/{userId}",
+  handler: function (request, h) {
+    const userData =
+      (request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.userData) ||
+      null;
+    return new Promise((resolve, reject) => {
+      Controller.ServiceController.getServiceByUserId(
+        userData,
+        request.params.userId,
+        function (err, data) {
+          if (err) reject(UniversalFunctions.sendError(err));
+          else
+            resolve(
+              UniversalFunctions.sendSuccess(
+                Config.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT,
+                data
+              )
+            );
+        }
+      );
+    });
+  },
+  config: {
+    description: "get Service",
+    tags: ["api", "user", "getService"],
+    auth: "UserAuth",
+    validate: {
+      failAction: UniversalFunctions.failActionFunction,
+      params: {
+        userId: Joi.string().required(),
+      },
+    },
+    plugins: {
+      "hapi-swagger": {
+        security: [{ user: {} }],
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
+};
+
 const getServiceById = {
   method: "GET",
   path: "/api/service/getService/{_id}",
@@ -245,4 +292,10 @@ const deleteService = {
 //   },
 // };
 
-export default [createService, getService, getServiceById, deleteService];
+export default [
+  createService,
+  getService,
+  getServiceById,
+  deleteService,
+  getServiceByUserId,
+];

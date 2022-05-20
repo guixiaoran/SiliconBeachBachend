@@ -179,6 +179,58 @@ const getServiceById = (userData, _id, callback) => {
   );
 };
 
+const getServiceByUserId = (userData, userid, callback) => {
+  let cardList = [];
+  let userFound;
+  async.series(
+    [
+      function (cb) {
+        const criteria = {
+          _id: userData.userId,
+        };
+        Service.UserService.getRecord(
+          criteria,
+          { password: 0 },
+          {},
+          function (err, data) {
+            if (err) cb(err);
+            else {
+              if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN);
+              else {
+                userFound = (data && data[0]) || null;
+                if (userFound.isBlocked == true) cb(ERROR.ACCOUNT_BLOCKED);
+                else cb();
+              }
+            }
+          }
+        );
+      },
+      function (cb) {
+        const criteria = { serviceCreator: userid };
+        const projection = {};
+        Service.ServiceService.getRecord(
+          criteria,
+          projection,
+          {},
+          function (err, data) {
+            if (err) cb(err);
+            else {
+              cardList = data.map((element) => {
+                return element;
+              });
+              cb();
+            }
+          }
+        );
+      },
+    ],
+    function (err, result) {
+      if (err) callback(err);
+      else callback(null, { data: cardList });
+    }
+  );
+};
+
 const deleteService = (userData, payloadData, callback) => {
   let news;
   let userFound;
@@ -221,5 +273,6 @@ export default {
   createService: createService,
   getService: getService,
   getServiceById: getServiceById,
+  getServiceByUserId: getServiceByUserId,
   deleteService: deleteService,
 };
