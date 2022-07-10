@@ -142,6 +142,53 @@ const getCommentById = {
   },
 };
 
+const getCommentByService = {
+  method: "GET",
+  path: "/api/comment/getCommentByService/{serviceId}",
+  handler: function (request, h) {
+    const userData =
+      (request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.userData) ||
+      null;
+    return new Promise((resolve, reject) => {
+      Controller.CommentController.getCommentByService(
+        userData,
+        request.params.serviceId,
+        function (err, data) {
+          if (err) reject(UniversalFunctions.sendError(err));
+          else
+            resolve(
+              UniversalFunctions.sendSuccess(
+                Config.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT,
+                data
+              )
+            );
+        }
+      );
+    });
+  },
+  config: {
+    description: "get Comment",
+    tags: ["api", "user", "getComment"],
+    auth: "UserAuth",
+    validate: {
+      failAction: UniversalFunctions.failActionFunction,
+      params: {
+        serviceId: Joi.string().required(),
+      },
+    },
+    plugins: {
+      "hapi-swagger": {
+        security: [{ user: {} }],
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
+};
+
 const deleteComment = {
   method: "DELETE",
   path: "/api/comment/deleteComment/{_id}",
@@ -244,4 +291,10 @@ const deleteComment = {
 //   },
 // };
 
-export default [createComment, getComment, getCommentById, deleteComment];
+export default [
+  createComment,
+  getComment,
+  getCommentById,
+  deleteComment,
+  getCommentByService,
+];

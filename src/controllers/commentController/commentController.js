@@ -127,6 +127,58 @@ const getComment = (userData, callback) => {
   );
 };
 
+const getCommentByService = (userData, serviceId, callback) => {
+  let cardList = [];
+  let userFound;
+  async.series(
+    [
+      function (cb) {
+        const criteria = {
+          _id: userData.userId,
+        };
+        Service.UserService.getRecord(
+          criteria,
+          { password: 0 },
+          {},
+          function (err, data) {
+            if (err) cb(err);
+            else {
+              if (data.length == 0) cb(ERROR.INCORRECT_ACCESSTOKEN);
+              else {
+                userFound = (data && data[0]) || null;
+                if (userFound.isBlocked == true) cb(ERROR.ACCOUNT_BLOCKED);
+                else cb();
+              }
+            }
+          }
+        );
+      },
+      function (cb) {
+        const criteria = { serviceBelong: serviceId };
+        const projection = {};
+        Service.CommentService.getRecord(
+          criteria,
+          projection,
+          {},
+          function (err, data) {
+            if (err) cb(err);
+            else {
+              cardList = data.map((element) => {
+                return element;
+              });
+              cb();
+            }
+          }
+        );
+      },
+    ],
+    function (err, result) {
+      if (err) callback(err);
+      else callback(null, { data: cardList });
+    }
+  );
+};
+
 const getCommentById = (userData, _id, callback) => {
   let cardList = [];
   let userFound;
@@ -221,5 +273,6 @@ export default {
   createComment: createComment,
   getComment: getComment,
   getCommentById: getCommentById,
+  getCommentByService: getCommentByService,
   deleteComment: deleteComment,
 };

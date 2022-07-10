@@ -38,6 +38,7 @@ const createService = (userData, payloadData, callback) => {
         description: payloadData.description,
         name: payloadData.name,
         cost: payloadData.cost,
+        private: payloadData.private,
       };
       console.log("------------------", serviceToSave);
       Service.ServiceService.createRecord(serviceToSave, function (err, data) {
@@ -49,25 +50,51 @@ const createService = (userData, payloadData, callback) => {
         return cb();
       });
     },
-    // updateUserProfile: (cb) => {
-    //   const criteria = {
-    //     userId: userFound._id,
-    //   };
-    //   const dataToUpdate = {
-    //     $addToSet: {
-    //       services: serviceId,
-    //     },
-    //   };
-    //   Service.UserProfileService.updateRecord(
-    //     criteria,
-    //     dataToUpdate,
-    //     {},
-    //     function (err) {
-    //       if (err) return cb(err);
-    //       cb();
-    //     }
-    //   );
-    // },
+  };
+  async.series(task, function (err) {
+    if (err) return callback(err);
+    else return callback(null, { serviceData });
+  });
+};
+
+const updateService = (userData, payloadData, callback) => {
+  let serviceData, serviceId;
+  let userFound;
+
+  const task = {
+    validateUser: (cb) => {
+      const criteria = {
+        _id: userData.userId,
+      };
+      Service.UserService.getRecord(criteria, {}, {}, function (err, data) {
+        if (err) return cb(err);
+        if (data.length == 0) return cb(ERROR.INCORRECT_ACCESSTOKEN);
+        userFound = (data && data[0]) || null;
+        cb();
+      });
+    },
+    updateServices: (cb) => {
+      let serviceToSave = {
+        serviceCreator: userFound._id,
+        description: payloadData.description,
+        name: payloadData.name,
+        cost: payloadData.cost,
+        private: payloadData.private,
+      };
+      console.log("------------------", serviceToSave);
+      Service.ServiceService.updateRecord(
+        { _id: payloadData.serviceId },
+        serviceToSave,
+        function (err, data) {
+          if (err) return cb(err);
+          if (data?.length === 0) return cb(ERROR.DEFAULT);
+          serviceId = data._id;
+          serviceData = data;
+
+          return cb();
+        }
+      );
+    },
   };
   async.series(task, function (err) {
     if (err) return callback(err);
@@ -275,4 +302,5 @@ export default {
   getServiceById: getServiceById,
   getServiceByUserId: getServiceByUserId,
   deleteService: deleteService,
+  updateService: updateService,
 };

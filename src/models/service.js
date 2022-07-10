@@ -5,6 +5,7 @@ const service = new Schema({
   description: { type: String, trim: true, required: true },
   serviceCreator: { type: String, trim: true, required: true },
   cost: { type: String },
+  private: { type: Boolean },
 });
 
 export default mongoose.model("service", service);

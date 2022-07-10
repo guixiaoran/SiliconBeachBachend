@@ -33,7 +33,7 @@ const createService = {
   },
   config: {
     description: "create Service",
-    tags: ["api", "admin", "Service"],
+    tags: ["api", "user", "Service"],
     auth: "UserAuth",
     validate: {
       payload: {
@@ -42,6 +42,7 @@ const createService = {
         description: Joi.string().required(),
         // requirements: Joi.array().items(Joi.string().allow("")),
         cost: Joi.string().allow(""),
+        private: Joi.string().allow(""),
       },
       failAction: UniversalFunctions.failActionFunction,
     },
@@ -238,59 +239,60 @@ const deleteService = {
   },
 };
 
-// const updateCard = {
-//   method: "PUT",
-//   path: "/api/card/updateCard/{_id}",
-//   handler: function (request, h) {
-//     const userData =
-//       (request.auth &&
-//         request.auth.credentials &&
-//         request.auth.credentials.userData) ||
-//       null;
-//     const payloadData = request.payload;
-//     payloadData.cardId = request.params._id;
-//     return new Promise((resolve, reject) => {
-//       Controller.CardController.updateCard(
-//         userData,
-//         payloadData,
-//         function (err, data) {
-//           if (err) reject(UniversalFunctions.sendError(err));
-//           else
-//             resolve(
-//               UniversalFunctions.sendSuccess(
-//                 Config.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT,
-//                 data
-//               )
-//             );
-//         }
-//       );
-//     });
-//   },
-//   config: {
-//     description: "update Card",
-//     tags: ["api", "user", "card"],
-//     auth: "UserAuth",
-//     validate: {
-//       params: {
-//         _id: Joi.string().required(),
-//       },
-//       payload: {
-//         title: Joi.string().optional().allow(""),
-//         description: Joi.string().optional().allow(""),
-//         url: Joi.string().uri().optional().allow(""),
-//       },
-//       failAction: UniversalFunctions.failActionFunction,
-//     },
-//     plugins: {
-//       "hapi-swagger": {
-//         security: [{ user: {} }],
-//         responseMessages:
-//           UniversalFunctions.CONFIG.APP_CONSTANTS
-//             .swaggerDefaultResponseMessages,
-//       },
-//     },
-//   },
-// };
+const updateService = {
+  method: "PUT",
+  path: "/api/service/updateService/{_id}",
+  handler: function (request, h) {
+    const userData =
+      (request.auth &&
+        request.auth.credentials &&
+        request.auth.credentials.userData) ||
+      null;
+    const payloadData = request.payload;
+    payloadData.serviceId = request.params._id;
+    return new Promise((resolve, reject) => {
+      Controller.ServiceController.updateService(
+        userData,
+        payloadData,
+        function (err, data) {
+          if (err) reject(UniversalFunctions.sendError(err));
+          else
+            resolve(
+              UniversalFunctions.sendSuccess(
+                Config.APP_CONSTANTS.STATUS_MSG.SUCCESS.DEFAULT,
+                data
+              )
+            );
+        }
+      );
+    });
+  },
+  config: {
+    description: "update service",
+    tags: ["api", "user", "service"],
+    auth: "UserAuth",
+    validate: {
+      params: {
+        _id: Joi.string().required(),
+      },
+      payload: {
+        name: Joi.string().required(),
+        description: Joi.string().required(),
+        cost: Joi.string().allow(""),
+        private: Joi.string().allow(""),
+      },
+      failAction: UniversalFunctions.failActionFunction,
+    },
+    plugins: {
+      "hapi-swagger": {
+        security: [{ user: {} }],
+        responseMessages:
+          UniversalFunctions.CONFIG.APP_CONSTANTS
+            .swaggerDefaultResponseMessages,
+      },
+    },
+  },
+};
 
 export default [
   createService,
@@ -298,4 +300,5 @@ export default [
   getServiceById,
   deleteService,
   getServiceByUserId,
+  updateService,
 ];
